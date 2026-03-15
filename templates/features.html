@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Features - Smart Nutrition Analyzer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<header>
+  <div class="logo"><span class="logo-dot" aria-hidden="true"></span>Smart Nutrition Analyzer</div>
+  <nav>
+    <a href="{{ url_for('index') }}">Home</a>
+    <a class="active" href="{{ url_for('features') }}">Features</a>
+    <a href="{{ url_for('about') }}">About</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="page-hero">
+  <div class="page-shell hero-center">
+    <p class="eyebrow">What We Offer</p>
+    <h1>Built for Real Nutritional Clarity</h1>
+    <p>A practical dashboard that combines AI recognition with explainable nutrition logic and daily health context.</p>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="features-section">
+  <div class="page-shell">
+    <p class="eyebrow">Key Features</p>
+    <h2 class="section-title">What Makes This Different</h2>
+    
+    <div class="features-grid">
+      <article class="feature-card">
+        <p class="feature-number">01</p>
+        <div class="feature-icon">AI</div>
+        <h3>AI-Based Food Recognition</h3>
+        <p>Advanced MobileNetV2 deep learning model trained on 7 food categories. Upload any food image and get instant recognition with confidence scores.</p>
+      </article>
+
+      <article class="feature-card">
+        <p class="feature-number">02</p>
+        <div class="feature-icon">QT</div>
+        <h3>Quantity-Based Nutrition Analysis</h3>
+        <p>Switch between Per Serving and Custom grams. The dashboard updates calories, protein, fat, carbs, sugar, and sodium in real time using the selected quantity.</p>
+      </article>
+
+      <article class="feature-card">
+        <p class="feature-number">03</p>
+        <div class="feature-icon">HW</div>
+        <h3>ICMR/WHO Health Classification</h3>
+        <p>Rule-based Healthy/Moderate/Unhealthy verdict from protein, fat, carbs, sugar, and sodium. Includes per-nutrient reasoning table and dairy-specific exceptions.</p>
+      </article>
+
+      <article class="feature-card">
+        <p class="feature-number">04</p>
+        <div class="feature-icon">RG</div>
+        <h3>Smart Recommendations</h3>
+        <p>Recommendations are generated from nutrients marked Moderate or Unhealthy, giving targeted suggestions instead of generic tips.</p>
+      </article>
+
+      <article class="feature-card">
+        <p class="feature-number">05</p>
+        <div class="feature-icon">S0</div>
+        <h3>Formula-Based Health Score (0-100)</h3>
+        <p>Explainable score using macro calorie percentages, sugar and sodium penalties, and carb balance. Shows component breakdown and applies dairy penalty exceptions where relevant.</p>
+      </article>
+
+      <article class="feature-card">
+        <p class="feature-number">06</p>
+        <div class="feature-icon">DI</div>
+        <h3>Daily Intake Tracker + Visual Charts</h3>
+        <p>WHO 2000 kcal-based daily intake progress bars for all nutrients with exceed-limit alerts, plus quantity-aware interactive nutrition chart visualization.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- WHY CHOOSE US -->
+<section class="why-section">
+  <div class="page-shell why-layout">
+    <div>
+      <p class="eyebrow">Why Choose Us</p>
+      <h2 class="section-title">More Than Just a Nutrition Label</h2>
+      <p class="why-copy">Most nutrition tools just show you numbers. We explain what those numbers mean — using WHO and ICMR guidelines — so you can make genuinely informed decisions.</p>
+    </div>
+
+    <div class="why-grid">
+      <article class="why-card">
+        <div class="why-icon">F</div>
+        <h3>Fast</h3>
+        <p>Instant food recognition and analysis in seconds</p>
+      </article>
+      <article class="why-card">
+        <div class="why-icon">A</div>
+        <h3>Accurate</h3>
+        <p>AI-powered classification with detailed nutrition data</p>
+      </article>
+      <article class="why-card">
+        <div class="why-icon">I</div>
+        <h3>Insightful</h3>
+        <p>Quantity-aware charts, explainable scoring, daily tracking</p>
+      </article>
+      <article class="why-card">
+        <div class="why-icon">T</div>
+        <h3>Transparent</h3>
+        <p>Every score and verdict comes with a visible reason</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 Smart Nutrition Analyzer</p>
+  <p>Eat Healthy, Stay Fit</p>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="{{ url_for('static', filename='js/script.js') }}?v=5"></script>
+
+</body>
+</html>

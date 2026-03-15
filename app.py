@@ -145,10 +145,13 @@ def get_per_100g_nutrition(food_name):
     print(f"[DEBUG] Raw nutrition_dict: {nutrition_dict}")
     
     result = {
+        'food_name': str(nutrition_dict.get('food_name', food_name)).strip(),
+        'net_weight_g': float(nutrition_dict.get('net_weight_g', 100)),
         'calories_100g': float(nutrition_dict.get('calories_per_100', 0)),
         'protein_100g': float(nutrition_dict.get('protein_g_per_100', 0)),
-        'fat_100g': float(nutrition_dict.get('fat_g_per_100g', 0)),
+        'fat_100g': float(nutrition_dict.get('fat_g_per_100g', nutrition_dict.get('fat_g_per_100', 0))),
         'carbs_100g': float(nutrition_dict.get('carbs_g_per_100', 0)),
+        'sugar_100g': float(nutrition_dict.get('sugar_g_per_100', 0)),
         'sodium_100g': float(nutrition_dict.get('sodium_g_per_100', 0))
     }
     print(f"[DEBUG] Per-100g values: {result}")
@@ -420,10 +423,13 @@ def analyze():
         # Return response with new classification format
         return jsonify({
             "success": True,
+            "food_key": predicted_class,
             "product_name": predicted_class.replace("_", " ").title(),
             "confidence": round(confidence * 100, 2),
             "image_path": "/" + filepath.replace("\\", "/"),
             "nutrition": nutrition_data,
+            "per_100g": per_100g_nutrition,
+            "net_weight_g": per_100g_nutrition['net_weight_g'],
             "verdict": health_classification['verdict'],
             "health_score": health_classification['health_score'],
             "reasons": health_classification['reasons'],

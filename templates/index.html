@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Nutrition Analyzer - Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<header>
+  <div class="logo"><span class="logo-dot" aria-hidden="true"></span>Smart Nutrition Analyzer</div>
+  <nav>
+    <a class="active" href="{{ url_for('index') }}">Home</a>
+    <a href="{{ url_for('features') }}">Features</a>
+    <a href="{{ url_for('about') }}">About</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="upload-section">
+  <div class="hero-copy">
+    <p class="eyebrow">AI-Powered Nutrition Analysis</p>
+    <h1>Know what's <em>really</em><br>in your food.</h1>
+    <p class="hero-subtext">
+      Upload any packaged food image and instantly get WHO-standard health scores,
+      ICMR dietary classification, and real-time nutritional insights.
+    </p>
+    <button class="btn btn-primary" onclick="scrollToUpload()">Start Analyzing &rarr;</button>
+  </div>
+
+  <div class="hero-upload">
+    <div class="upload-card">
+      <input type="file" id="input-camera" accept="image/*" capture="environment" class="image-input-hidden">
+      <input type="file" id="input-file" accept="image/*" class="image-input-hidden">
+
+      <div id="upload-initial" class="upload-initial">
+        <div class="upload-icon" aria-hidden="true">&#8679;</div>
+        <h2>Upload Food Label</h2>
+        <p>JPG or PNG supported</p>
+
+        <div id="imageMethodButtons" class="image-method-buttons">
+          <button type="button" id="btn-camera" class="image-source-btn"><span class="source-icon" aria-hidden="true">📷</span><span>Take Photo</span></button>
+          <button type="button" id="btn-file" class="image-source-btn"><span class="source-icon" aria-hidden="true">📁</span><span>Upload File</span></button>
+        </div>
+      </div>
+
+      <div id="upload-preview" class="upload-preview">
+        <div class="image-preview-stage">
+          <button type="button" class="preview-clear-btn" id="clearPreviewBtn" aria-label="Clear selected image">&times;</button>
+          <img id="uploadPreviewImage" class="preview-image" alt="Selected food image preview">
+        </div>
+      </div>
+
+      <div id="upload-analyze" class="upload-analyze">
+        <button class="btn btn-primary btn-full" id="analyzeBtn" onclick="analyze()" disabled>Analyze Now &rarr;</button>
+      </div>
+
+      <div id="upload-loading" class="upload-loading">
+        <button class="btn btn-primary btn-full upload-loading-btn" id="analyzingBtn" type="button" disabled>
+          <span class="upload-spinner" aria-hidden="true"></span>
+          <span>Analyzing...</span>
+        </button>
+      </div>
+
+      <div id="upload-rescan" class="upload-rescan">
+        <button type="button" id="scanAnotherBtn" class="scan-another-btn">↺  Scan Another Item</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUANTITY STRIP -->
+<section class="quantity-strip is-hidden" id="quantityStripSection">
+  <div class="page-shell">
+    <div id="quantityControlsMount">
+      <p class="placeholder-text">Quantity controls will appear after analysis.</p>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="results" id="results">
+  <div class="page-shell results-grid">
+    <div class="card">
+      <h3 class="card-title">Nutrition Info</h3>
+      <div id="nutritionResult">
+        <p class="placeholder-text">Upload an image to see nutrition data.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">Dietary Analysis</h3>
+      <div id="recommendations">
+        <p class="placeholder-text">Upload a label to see suggestions.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">Daily Intake</h3>
+      <div id="dailyIntakePanel">
+        <p class="placeholder-text">WHO 2000 kcal/day tracker appears after analysis.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-shell recommendations-wide-wrap">
+    <div class="card recommendations-wide-card">
+      <h3 class="card-title">Recommendations</h3>
+      <div id="recommendationsPanel">
+        <p class="placeholder-text">Upload a label to get personalized recommendations.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHART -->
+<section class="chart-section">
+  <div class="page-shell">
+    <div class="card chart-card">
+      <h3 class="card-title">Nutrition Chart</h3>
+      <div class="chart-wrap">
+        <canvas id="nutritionChart"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 Smart Nutrition Analyzer</p>
+  <p>Eat Healthy, Stay Fit</p>
+</footer>
+
+<div id="historyOverlay" class="history-overlay" aria-hidden="true">
+  <aside id="historyDrawer" class="history-drawer" role="dialog" aria-modal="true" aria-label="Session history">
+    <div class="history-drawer-header">
+      <div>
+        <h4>Today's Session</h4>
+        <p id="historyDrawerSubtitle">0 items confirmed</p>
+      </div>
+      <button type="button" id="historyDrawerClose" class="history-close-btn" aria-label="Close history">✕</button>
+    </div>
+
+    <div id="historySummary" class="history-summary-strip"></div>
+    <div id="historyItemList" class="history-item-list"></div>
+  </aside>
+</div>
+
+<div id="historyModalOverlay" class="history-modal-overlay" aria-hidden="true">
+  <div class="history-modal-box" role="dialog" aria-modal="true" aria-label="Detailed history analysis">
+    <div class="history-modal-head">
+      <div>
+        <h4 id="historyModalTitle">Detailed Analysis</h4>
+        <p id="historyModalSubtitle"></p>
+      </div>
+      <button type="button" id="historyModalClose" class="history-close-btn" aria-label="Close detailed analysis">✕</button>
+    </div>
+
+    <div id="historyModalBody" class="history-modal-body"></div>
+    <div class="history-modal-chart-wrap">
+      <canvas id="historyDetailChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="{{ url_for('static', filename='js/script.js') }}?v=5"></script>
+
+</body>
+</html>

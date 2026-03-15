@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About - Smart Nutrition Analyzer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<header>
+  <div class="logo"><span class="logo-dot" aria-hidden="true"></span>Smart Nutrition Analyzer</div>
+  <nav>
+    <a href="{{ url_for('index') }}">Home</a>
+    <a href="{{ url_for('features') }}">Features</a>
+    <a class="active" href="{{ url_for('about') }}">About</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="page-hero">
+  <div class="page-shell hero-center">
+    <p class="eyebrow">Our Project</p>
+    <h1>The Technology Behind the Analysis</h1>
+    <p>A deep learning nutrition analyzer built with MobileNetV2, Flask, and WHO/ICMR dietary standards.</p>
+  </div>
+</section>
+
+<!-- TECHNICAL DETAILS -->
+<section id="about" class="about-section">
+  <div class="page-shell">
+    <p class="eyebrow">How It Works</p>
+    <h2 class="section-title">Architecture & Methodology</h2>
+    
+    <div class="about-grid">
+      <article class="about-card">
+        <p class="feature-number">01</p>
+        <h3>Technical Architecture</h3>
+        <div class="about-content">
+          <p><strong>Backend Framework:</strong> Flask (Python Web Framework)</p>
+          <p><strong>Frontend:</strong> HTML5, CSS3, JavaScript with Chart.js</p>
+          <p><strong>Deep Learning:</strong> TensorFlow/Keras with MobileNetV2</p>
+          <p><strong>Data Storage:</strong> CSV-based Nutritional Database</p>
+        </div>
+      </article>
+
+      <article class="about-card">
+        <p class="feature-number">02</p>
+        <h3>Deep Learning Model</h3>
+        <div class="about-content">
+          <p><strong>Architecture:</strong> MobileNetV2 - Lightweight and efficient</p>
+          <p><strong>Training Method:</strong> Transfer Learning on pre-trained ImageNet weights</p>
+          <p><strong>Food Categories:</strong> 7 trained classes (Amul Milk, Govind Curd, Kit Kat, Lays Chips, Maggie, Oreo, Parle G)</p>
+          <p><strong>Input Size:</strong> 224×224 pixels, RGB format</p>
+        </div>
+      </article>
+
+      <article class="about-card">
+        <p class="feature-number">03</p>
+        <h3>Image Classification Process</h3>
+        <div class="about-content">
+          <p><strong>Step 1:</strong> User uploads food product image</p>
+          <p><strong>Step 2:</strong> Image preprocessed: resized to 224×224, normalized to [0,1]</p>
+          <p><strong>Step 3:</strong> MobileNetV2 model predicts food category with confidence</p>
+          <p><strong>Step 4:</strong> Results returned in real-time with confidence percentage</p>
+        </div>
+      </article>
+
+      <article class="about-card">
+        <p class="feature-number">04</p>
+        <h3>Nutrition Data Retrieval</h3>
+        <div class="about-content">
+          <p><strong>Data Source:</strong> CSV database with 7 food items</p>
+          <p><strong>Schema:</strong> food_name, net_weight_g, calories_per_100, protein_g_per_100, fat_g_per_100, carbs_g_per_100, sugar_g_per_100, sodium_g_per_100</p>
+          <p><strong>Quantity Engine:</strong> Per Serving uses net_weight_g with serving stepper, and Custom mode supports any gram input</p>
+          <p><strong>Real-Time Update:</strong> All displayed nutrition values are recalculated instantly for the selected quantity</p>
+        </div>
+      </article>
+
+      <article class="about-card">
+        <p class="feature-number">05</p>
+        <h3>Rule-Based Health Verdict (ICMR/WHO)</h3>
+        <div class="about-content">
+          <p><strong>Nutrient Rules:</strong> Protein, fat, carbs, sugar, and sodium are each classified as Healthy/Moderate/Unhealthy</p>
+          <p><strong>Final Verdict:</strong> Total nutrient score (0-10) maps to Healthy (>=8), Moderate (5-7), or Unhealthy (<=4)</p>
+          <p><strong>Dairy Exception:</strong> For Amul Milk and Govind Curd, fat thresholds are relaxed and natural lactose is excluded from sugar penalty</p>
+          <p><strong>Transparency:</strong> A per-nutrient reason table explains every verdict on the dashboard</p>
+        </div>
+      </article>
+
+      <article class="about-card">
+        <p class="feature-number">06</p>
+        <h3>Formula-Based Health Score</h3>
+        <div class="about-content">
+          <p><strong>Score Formula:</strong> Uses macro calorie percentages, fat and sugar penalties, sodium penalty, and carb balance</p>
+          <p><strong>Range:</strong> Clamped to 0-100 with color bands for Healthy, Moderate, and Unhealthy</p>
+          <p><strong>Explainability:</strong> Component breakdown shows contribution of Protein, Fat, Sugar, Sodium, and Carbs</p>
+          <p><strong>Dairy Handling:</strong> Dairy items apply fat penalty reduction and no sugar penalty for natural lactose</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- MISSION -->
+<section class="mission-section">
+  <div class="page-shell mission-shell">
+    <p class="eyebrow">Our Mission</p>
+    <h2 class="section-title">Making Nutrition Transparent</h2>
+    <div class="divider"></div>
+    <div class="mission-content">
+      <p>We believe that everyone deserves access to accurate, easy-to-understand nutrition information. Our mission is to make healthy eating decisions simple and intuitive by leveraging cutting-edge AI technology.</p>
+      <p>With our nutrition analyzer, we aim to bridge the gap between food choices and nutritional awareness, empowering users to make informed dietary decisions that contribute to better health outcomes.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 Smart Nutrition Analyzer</p>
+  <p>Eat Healthy, Stay Fit</p>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="{{ url_for('static', filename='js/script.js') }}?v=5"></script>
+
+</body>
+</html>
