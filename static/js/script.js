@@ -24,6 +24,17 @@ const recommendationsPanel = document.getElementById('recommendationsPanel');
 const quantityControlsMount = document.getElementById('quantityControlsMount');
 const quantityStripSection = document.getElementById('quantityStripSection');
 const dailyIntakePanel = document.getElementById('dailyIntakePanel');
+const resultsSection = document.getElementById('results');
+const resultsGrid = document.getElementById('resultsGrid');
+const recommendationsWideWrap = document.getElementById('recommendationsWideWrap');
+const chartSection = document.getElementById('chartSection');
+const lowConfidenceMount = document.getElementById('lowConfidenceMount');
+const lowConfidenceConfirmOverlay = document.getElementById('lowConfidenceConfirmOverlay');
+const lowConfidencePreview = document.getElementById('lowConfidencePreview');
+const lowConfidenceHeading = document.getElementById('lowConfidenceHeading');
+const lowConfidenceConfidenceLine = document.getElementById('lowConfidenceConfidenceLine');
+const lowConfidenceYesBtn = document.getElementById('lowConfidenceYesBtn');
+const lowConfidenceNoBtn = document.getElementById('lowConfidenceNoBtn');
 const historyOverlay = document.getElementById('historyOverlay');
 const historyDrawer = document.getElementById('historyDrawer');
 const historyDrawerClose = document.getElementById('historyDrawerClose');
@@ -43,6 +54,9 @@ let dashboardState = null;
 let selectedImageFile = null;
 let selectedImagePreviewUrl = null;
 let currentUploadState = 'initial';
+let pendingLowConfidenceResult = null;
+let pendingLowConfidenceConfidencePct = 0;
+let pendingLowConfidencePredictedClass = '';
 
 const DAILY_LIMITS = {
     calories: { limit: 2000, unit: 'kcal', label: 'Calories' },
@@ -415,6 +429,12 @@ async function analyze() {
         });
 
         const data = await response.json();
+
+        if (data && data.status === 'low_confidence') {
+            openLowConfidenceConfirmation(data);
+            return;
+        }
+
         if (!data.success) {
             showError(data.error || 'Analysis failed');
             setUploadState('selected');
@@ -427,6 +447,101 @@ async function analyze() {
         showError('Network error.');
         setUploadState('selected');
     }
+}
+
+function triggerUploadFileFlow() {
+    closeLowConfidenceConfirmation();
+    clearPendingLowConfidenceData();
+    setLowConfidenceMode(false);
+    clearSelectedImage();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (inputFile) {
+        inputFile.value = '';
+        inputFile.click();
+    }
+}
+
+function closeLowConfidenceConfirmation() {
+    if (!lowConfidenceConfirmOverlay) return;
+    lowConfidenceConfirmOverlay.classList.remove('open');
+    lowConfidenceConfirmOverlay.setAttribute('aria-hidden', 'true');
+}
+
+function openLowConfidenceConfirmation(data) {
+    const pendingResult = data && data.pending_result ? deepClone(data.pending_result) : null;
+    if (!pendingResult) {
+        showError('Low confidence result is missing analysis payload. Please try again.');
+        setUploadState('selected');
+        return;
+    }
+
+    pendingLowConfidenceResult = pendingResult;
+    pendingLowConfidencePredictedClass = String(data.predicted_class || pendingResult.product_name || 'this item');
+    pendingLowConfidenceConfidencePct = toNumber(data.confidence_percent, toNumber(data.confidence, 0) * 100);
+
+    if (lowConfidencePreview) {
+        if (selectedImagePreviewUrl) {
+            lowConfidencePreview.src = selectedImagePreviewUrl;
+            lowConfidencePreview.style.display = 'block';
+        } else {
+            lowConfidencePreview.removeAttribute('src');
+            lowConfidencePreview.style.display = 'none';
+        }
+    }
+
+    if (lowConfidenceHeading) {
+        lowConfidenceHeading.innerHTML = `Is this <span class="low-confidence-food-name">${pendingLowConfidencePredictedClass}</span>?`;
+    }
+
+    if (lowConfidenceConfidenceLine) {
+        lowConfidenceConfidenceLine.innerHTML = `We recognised this with <span class="low-confidence-pct">${pendingLowConfidenceConfidencePct.toFixed(2)}%</span> confidence`;
+    }
+
+    if (lowConfidenceConfirmOverlay) {
+        lowConfidenceConfirmOverlay.classList.add('open');
+        lowConfidenceConfirmOverlay.setAttribute('aria-hidden', 'false');
+    }
+
+    setUploadState('selected');
+}
+
+function clearPendingLowConfidenceData() {
+    pendingLowConfidenceResult = null;
+    pendingLowConfidenceConfidencePct = 0;
+    pendingLowConfidencePredictedClass = '';
+}
+
+function handleLowConfidenceYes() {
+    if (!pendingLowConfidenceResult) {
+        closeLowConfidenceConfirmation();
+        showError('No pending analysis found. Please upload again.');
+        setUploadState('selected');
+        return;
+    }
+
+    const confirmedData = deepClone(pendingLowConfidenceResult);
+    const modelConfidencePct = pendingLowConfidenceConfidencePct;
+    closeLowConfidenceConfirmation();
+    clearPendingLowConfidenceData();
+    displayResults(confirmedData, {
+        isUserConfirmed: true,
+        modelConfidencePct
+    });
+}
+
+function handleLowConfidenceNo() {
+    closeLowConfidenceConfirmation();
+    clearPendingLowConfidenceData();
+    renderLowConfidenceResult();
+}
+
+if (lowConfidenceYesBtn) {
+    lowConfidenceYesBtn.addEventListener('click', handleLowConfidenceYes);
+}
+
+if (lowConfidenceNoBtn) {
+    lowConfidenceNoBtn.addEventListener('click', handleLowConfidenceNo);
 }
 
 function toNumber(value, fallback = 0) {
@@ -725,6 +840,98 @@ function getDailyStatusClass(pct) {
     if (pct >= 61) return 'daily-orange';
     if (pct >= 31) return 'daily-amber';
     return 'daily-green';
+}
+
+function setLowConfidenceMode(isLowConfidence) {
+    if (resultsGrid) {
+        resultsGrid.style.display = isLowConfidence ? 'none' : 'grid';
+    }
+
+    if (recommendationsWideWrap) {
+        recommendationsWideWrap.style.display = isLowConfidence ? 'none' : 'block';
+    }
+
+    if (chartSection) {
+        chartSection.style.display = isLowConfidence ? 'none' : 'block';
+    }
+
+    if (lowConfidenceMount) {
+        lowConfidenceMount.style.display = isLowConfidence ? 'block' : 'none';
+        if (!isLowConfidence) {
+            lowConfidenceMount.innerHTML = '';
+        }
+    }
+}
+
+function renderLowConfidenceResult() {
+    closeLowConfidenceConfirmation();
+
+    dashboardState = null;
+
+    if (quantityStripSection) {
+        quantityStripSection.classList.add('is-hidden');
+    }
+
+    if (quantityControlsMount) {
+        quantityControlsMount.innerHTML = '<p class="placeholder-text">Quantity controls will appear after analysis.</p>';
+    }
+
+    if (dailyIntakePanel) {
+        dailyIntakePanel.innerHTML = '<p class="placeholder-text">WHO 2000 kcal/day tracker appears after analysis.</p>';
+    }
+
+    if (recommendationsPanel) {
+        recommendationsPanel.innerHTML = '<p class="placeholder-text">Upload a label to get personalized recommendations.</p>';
+    }
+
+    setLowConfidenceMode(true);
+
+    if (lowConfidenceMount) {
+        lowConfidenceMount.innerHTML = `
+            <div class="low-confidence-card">
+                <div class="low-confidence-icon" aria-hidden="true">🔍</div>
+                <h3 class="low-confidence-title">We couldn't identify this product</h3>
+                <p class="low-confidence-subtext">
+                    This item doesn't match any of our supported products. We currently provide analysis for
+                    the following 7 items:
+                </p>
+
+                <div class="low-confidence-pills" aria-label="Supported products">
+                    <span class="low-confidence-pill">Parle G</span>
+                    <span class="low-confidence-pill">Amul Milk</span>
+                    <span class="low-confidence-pill">Kit Kat</span>
+                    <span class="low-confidence-pill">Lays Chips</span>
+                    <span class="low-confidence-pill">Govind Curd</span>
+                    <span class="low-confidence-pill">Oreo</span>
+                    <span class="low-confidence-pill">Maggie</span>
+                </div>
+
+                <p class="low-confidence-closing">
+                    We're continuously working to expand our database.
+                    More products coming soon!
+                </p>
+
+                <div class="low-confidence-divider" aria-hidden="true"></div>
+
+                <button type="button" id="lowConfidenceRetryBtn" class="scan-another-btn low-confidence-retry-btn">
+                    ↺ Try a Supported Item
+                </button>
+            </div>
+        `;
+
+        const retryBtn = document.getElementById('lowConfidenceRetryBtn');
+        if (retryBtn) {
+            retryBtn.addEventListener('click', triggerUploadFileFlow);
+        }
+    }
+
+    setUploadState('result');
+
+    if (resultsSection) {
+        setTimeout(() => {
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }, 200);
+    }
 }
 
 function renderDailyIntake(adjustedNutrition) {
@@ -1481,7 +1688,12 @@ function updateDashboard() {
     initChart(adjusted, dashboardState.per100, quantityGrams, dashboardState.foodKey);
 }
 
-function displayResults(data) {
+function displayResults(data, options = {}) {
+    closeLowConfidenceConfirmation();
+    clearPendingLowConfidenceData();
+
+    setLowConfidenceMode(false);
+
     const per100 = extractPer100g(data);
     const foodKey = normalizeFoodKey(data);
     const netWeight = Math.max(1, toNumber(data.net_weight_g, per100.netWeight || 100));
@@ -1535,10 +1747,15 @@ function displayResults(data) {
         quantityStripSection.classList.remove('is-hidden');
     }
 
+    const modelSuggestedConfidence = toNumber(options.modelConfidencePct, dashboardState.confidence);
+    const confidenceLine = options.isUserConfirmed
+        ? `<span class="user-confirmed-label">User confirmed</span> · Model suggested <span class="user-confirmed-model-pct">${modelSuggestedConfidence.toFixed(2)}%</span> | <span id="servingSummaryText">${dashboardState.netWeight.toFixed(1)}g serving</span>`
+        : `<strong>Confidence:</strong> ${dashboardState.confidence.toFixed(2)}% | <span id="servingSummaryText">${dashboardState.netWeight.toFixed(1)}g serving</span>`;
+
     nutritionResult.innerHTML = `
         <div class="nutrition-container">
             <h4>${dashboardState.productName}</h4>
-            <p><strong>Confidence:</strong> ${dashboardState.confidence.toFixed(2)}% | <span id="servingSummaryText">${dashboardState.netWeight.toFixed(1)}g serving</span></p>
+            <p>${confidenceLine}</p>
 
             <div id="dynamicScoreBadge" class="score-badge status-moderate">
                 <div class="score-title">Health Score (Formula-based)</div>
@@ -1613,7 +1830,6 @@ function displayResults(data) {
     updateDashboard();
     setUploadState('result');
 
-    const resultsSection = document.getElementById('results');
     if (resultsSection) {
         setTimeout(() => {
             resultsSection.scrollIntoView({ behavior: 'smooth' });
@@ -1622,6 +1838,10 @@ function displayResults(data) {
 }
 
 function showLoading() {
+    closeLowConfidenceConfirmation();
+
+    setLowConfidenceMode(false);
+
     if (quantityStripSection) {
         quantityStripSection.classList.add('is-hidden');
     }
@@ -1640,6 +1860,10 @@ function showLoading() {
 }
 
 function showError(message) {
+    closeLowConfidenceConfirmation();
+
+    setLowConfidenceMode(false);
+
     if (quantityStripSection) {
         quantityStripSection.classList.add('is-hidden');
     }

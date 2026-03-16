@@ -400,6 +400,7 @@ def analyze():
 
         # Predict class
         predicted_class, confidence = predict_class(img_array)
+        predicted_class_name = predicted_class.replace("_", " ").title()
 
         # Get per-100g nutrition data for classification
         per_100g_nutrition = get_per_100g_nutrition(predicted_class)
@@ -420,11 +421,11 @@ def analyze():
             calories_100g=per_100g_nutrition['calories_100g']
         )
 
-        # Return response with new classification format
-        return jsonify({
+        # Prepare unified analysis payload
+        analysis_payload = {
             "success": True,
             "food_key": predicted_class,
-            "product_name": predicted_class.replace("_", " ").title(),
+            "product_name": predicted_class_name,
             "confidence": round(confidence * 100, 2),
             "image_path": "/" + filepath.replace("\\", "/"),
             "nutrition": nutrition_data,
@@ -434,7 +435,20 @@ def analyze():
             "health_score": health_classification['health_score'],
             "reasons": health_classification['reasons'],
             "macro_percentages": health_classification['macro_percentages']
-        })
+        }
+
+        # Low-confidence flow: ask user confirmation on frontend,
+        # while returning pending full analysis for the "Yes" path.
+        if confidence < 0.55:
+            return jsonify({
+                "status": "low_confidence",
+                "predicted_class": predicted_class_name,
+                "confidence": float(confidence),
+                "confidence_percent": round(confidence * 100, 2),
+                "pending_result": analysis_payload
+            })
+
+        return jsonify(analysis_payload)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -465,4 +479,4 @@ def debug_nutrition():
 # =============================
 if __name__ == "__main__":
     load_resources()
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
