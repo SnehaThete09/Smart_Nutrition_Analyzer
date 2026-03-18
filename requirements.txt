@@ -1,9 +1,9 @@
 flask==3.0.0
-tensorflow-cpu
-keras
-numpy
-pandas
-Pillow
-gunicorn
-scipy
-h5py
+tensorflow-cpu==2.16.1
+keras==3.0.0
+numpy==1.26.4
+pandas==2.0.3
+Pillow==10.0.0
+gunicorn==21.2.0
+scipy==1.11.4
+h5py==3.11.0
