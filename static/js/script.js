@@ -28,6 +28,7 @@ const resultsSection = document.getElementById('results');
 const resultsGrid = document.getElementById('resultsGrid');
 const recommendationsWideWrap = document.getElementById('recommendationsWideWrap');
 const chartSection = document.getElementById('chartSection');
+const nutritionChartTitle = document.getElementById('nutritionChartTitle');
 const lowConfidenceMount = document.getElementById('lowConfidenceMount');
 const lowConfidenceConfirmOverlay = document.getElementById('lowConfidenceConfirmOverlay');
 const lowConfidencePreview = document.getElementById('lowConfidencePreview');
@@ -68,6 +69,9 @@ const DAILY_LIMITS = {
 };
 
 const DAILY_LOG_KEY = 'daily_log';
+const DISPLAY_NAME_OVERRIDES = {
+    govind_curd: 'Curd'
+};
 
 function zeroTotals() {
     return {
@@ -400,6 +404,7 @@ if (scanAnotherBtn) {
 
 setUploadState('initial');
 updateHistoryButtonCount();
+setNutritionChartTitle();
 
 function scrollToUpload() {
     const uploadSection = document.getElementById('upload-section');
@@ -477,7 +482,7 @@ function openLowConfidenceConfirmation(data) {
     }
 
     pendingLowConfidenceResult = pendingResult;
-    pendingLowConfidencePredictedClass = String(data.predicted_class || pendingResult.product_name || 'this item');
+    pendingLowConfidencePredictedClass = formatFoodName(data.predicted_class || pendingResult.product_name || 'this item');
     pendingLowConfidenceConfidencePct = toNumber(data.confidence_percent, toNumber(data.confidence, 0) * 100);
 
     if (lowConfidencePreview) {
@@ -901,7 +906,7 @@ function renderLowConfidenceResult() {
                     <span class="low-confidence-pill">Amul Milk</span>
                     <span class="low-confidence-pill">Kit Kat</span>
                     <span class="low-confidence-pill">Lays Chips</span>
-                    <span class="low-confidence-pill">Govind Curd</span>
+                    <span class="low-confidence-pill">Curd</span>
                     <span class="low-confidence-pill">Oreo</span>
                     <span class="low-confidence-pill">Maggie</span>
                 </div>
@@ -995,8 +1000,23 @@ function normalizeVerdictLabel(verdict) {
 }
 
 function formatFoodName(foodName) {
+    const normalized = String(foodName || '').toLowerCase().trim().replace(/\s+/g, '_');
+    if (DISPLAY_NAME_OVERRIDES[normalized]) {
+        return DISPLAY_NAME_OVERRIDES[normalized];
+    }
+
     const base = String(foodName || 'Unknown Food').replace(/_/g, ' ').trim();
     return base.replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function setNutritionChartTitle(productName = '') {
+    if (!nutritionChartTitle) return;
+
+    const chartBaseTitle = 'Nutrition Chart';
+    const readableName = String(productName || '').trim();
+    nutritionChartTitle.textContent = readableName
+        ? `${chartBaseTitle} (${readableName.toUpperCase()})`
+        : chartBaseTitle;
 }
 
 function formatLoggedTime(timestamp) {
@@ -1066,6 +1086,32 @@ function initHistoryDetailChart(item) {
         thresholdPer100.sodium * quantityFactor
     ];
 
+    const historyValueLabelPlugin = {
+        id: 'historyValueLabelPlugin',
+        afterDatasetsDraw(chart) {
+            const actualMeta = chart.getDatasetMeta(0);
+            const thresholdMeta = chart.getDatasetMeta(1);
+            if (!actualMeta || !actualMeta.data || !thresholdMeta || !thresholdMeta.data) return;
+
+            const chartCtx = chart.ctx;
+            chartCtx.save();
+            chartCtx.font = '600 11px "Plus Jakarta Sans"';
+            chartCtx.fillStyle = '#000000';
+            chartCtx.textAlign = 'center';
+            chartCtx.textBaseline = 'bottom';
+
+            actualMeta.data.forEach((bar, index) => {
+                chartCtx.fillText(`${toNumber(actualData[index]).toFixed(2)}g`, bar.x, bar.y - 6);
+            });
+
+            thresholdMeta.data.forEach((bar, index) => {
+                chartCtx.fillText(`${toNumber(thresholdData[index]).toFixed(2)}g`, bar.x, bar.y - 14);
+            });
+
+            chartCtx.restore();
+        }
+    };
+
     historyDetailChart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -1078,7 +1124,9 @@ function initHistoryDetailChart(item) {
                     borderColor: '#2f7f5f',
                     borderWidth: 1,
                     borderRadius: 8,
-                    maxBarThickness: 28
+                    categoryPercentage: 0.35,
+                    barPercentage: 0.98,
+                    maxBarThickness: 40
                 },
                 {
                     label: 'Healthy limit',
@@ -1087,17 +1135,20 @@ function initHistoryDetailChart(item) {
                     borderColor: '#a5b1a3',
                     borderWidth: 1,
                     borderRadius: 8,
-                    maxBarThickness: 28
+                    categoryPercentage: 0.35,
+                    barPercentage: 0.98,
+                    maxBarThickness: 40
                 }
             ]
         },
+        plugins: [historyValueLabelPlugin],
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
                 legend: {
                     labels: {
-                        color: '#2d3d2f',
+                        color: '#000000',
                         font: {
                             family: "'Plus Jakarta Sans', sans-serif",
                             size: 12,
@@ -1134,7 +1185,7 @@ function initHistoryDetailChart(item) {
 function renderHistoryDetailModal(item) {
     if (!historyModalTitle || !historyModalSubtitle || !historyModalBody) return;
 
-    const readableName = item.product_name || formatFoodName(item.food_name);
+    const readableName = formatFoodName(item.product_name || item.food_name);
     const verdictLabel = normalizeVerdictLabel(item.classification && item.classification.verdict ? item.classification.verdict : item.verdict);
     const verdictClass = getStatusClass(verdictLabel);
     const classScore = toNumber(item.classification && item.classification.totalScore, 0);
@@ -1257,7 +1308,7 @@ function renderHistoryDrawer() {
 
     historyItemList.innerHTML = log.items.slice().reverse().map((item, reversedIndex) => {
         const index = log.items.length - 1 - reversedIndex;
-        const readableName = item.product_name || formatFoodName(item.food_name);
+        const readableName = formatFoodName(item.product_name || item.food_name);
         const verdictLabel = normalizeVerdictLabel(item.classification && item.classification.verdict ? item.classification.verdict : item.verdict);
         const verdictClass = getStatusClass(verdictLabel);
         const nutrients = normalizeNutrients(item.nutrients);
@@ -1375,23 +1426,26 @@ function initChart(nutrition, per100, quantityGrams, foodKey) {
         return isWithinHealthyRange ? '#2f7f5f' : '#c24732';
     });
 
-    const actualValueLabelPlugin = {
-        id: 'actualValueLabelPlugin',
+    const nutrientValueLabelPlugin = {
+        id: 'nutrientValueLabelPlugin',
         afterDatasetsDraw(chart) {
-            const datasetIndex = 0;
-            const meta = chart.getDatasetMeta(datasetIndex);
-            if (!meta || !meta.data) return;
+            const actualMeta = chart.getDatasetMeta(0);
+            const thresholdMeta = chart.getDatasetMeta(1);
+            if (!actualMeta || !actualMeta.data || !thresholdMeta || !thresholdMeta.data) return;
 
             const chartCtx = chart.ctx;
             chartCtx.save();
             chartCtx.font = '600 11px "Plus Jakarta Sans"';
-            chartCtx.fillStyle = '#1f2f22';
+            chartCtx.fillStyle = '#000000';
             chartCtx.textAlign = 'center';
             chartCtx.textBaseline = 'bottom';
 
-            meta.data.forEach((bar, index) => {
-                const value = actualData[index];
-                chartCtx.fillText(`${value.toFixed(2)}g`, bar.x, bar.y - 4);
+            actualMeta.data.forEach((bar, index) => {
+                chartCtx.fillText(`${toNumber(actualData[index]).toFixed(2)}g`, bar.x, bar.y - 6);
+            });
+
+            thresholdMeta.data.forEach((bar, index) => {
+                chartCtx.fillText(`${toNumber(thresholdData[index]).toFixed(2)}g`, bar.x, bar.y - 14);
             });
 
             chartCtx.restore();
@@ -1410,7 +1464,9 @@ function initChart(nutrition, per100, quantityGrams, foodKey) {
                     borderColor: actualColors,
                     borderWidth: 1,
                     borderRadius: 8,
-                    maxBarThickness: 28
+                    categoryPercentage: 0.35,
+                    barPercentage: 0.98,
+                    maxBarThickness: 40
                 },
                 {
                     label: 'Healthy limit',
@@ -1419,11 +1475,13 @@ function initChart(nutrition, per100, quantityGrams, foodKey) {
                     borderColor: '#a5b1a3',
                     borderWidth: 1,
                     borderRadius: 8,
-                    maxBarThickness: 28
+                    categoryPercentage: 0.35,
+                    barPercentage: 0.98,
+                    maxBarThickness: 40
                 }
             ]
         },
-        plugins: [actualValueLabelPlugin],
+        plugins: [nutrientValueLabelPlugin],
         options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -1431,14 +1489,19 @@ function initChart(nutrition, per100, quantityGrams, foodKey) {
                 legend: {
                     labels: {
                         generateLabels(chart) {
-                            const hasOutOfRange = actualColors.some((color) => color === '#c24732');
-                            const actualLegendColor = hasOutOfRange ? '#c24732' : '#2f7f5f';
-
                             return [
                                 {
-                                    text: 'Actual',
-                                    fillStyle: actualLegendColor,
-                                    strokeStyle: actualLegendColor,
+                                    text: 'Actual (within healthy range)',
+                                    fillStyle: '#2f7f5f',
+                                    strokeStyle: '#2f7f5f',
+                                    lineWidth: 1,
+                                    hidden: !chart.isDatasetVisible(0),
+                                    datasetIndex: 0
+                                },
+                                {
+                                    text: 'Actual (outside healthy range)',
+                                    fillStyle: '#c24732',
+                                    strokeStyle: '#c24732',
                                     lineWidth: 1,
                                     hidden: !chart.isDatasetVisible(0),
                                     datasetIndex: 0
@@ -1705,11 +1768,13 @@ function displayResults(data, options = {}) {
         netWeight,
         per100,
         foodKey,
-        productName: data.product_name || 'Unknown food',
+        productName: formatFoodName(data.product_name || data.food_key || 'Unknown food'),
         confidence: toNumber(data.confidence),
         consumeDecision: 'pending',
         confirmedNutrients: null
     };
+
+    setNutritionChartTitle(dashboardState.productName);
 
     if (quantityControlsMount) {
         quantityControlsMount.innerHTML = `

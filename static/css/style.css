@@ -1258,9 +1258,19 @@ header nav a.active::before {
 .nutrient-rule-table th,
 .nutrient-rule-table td {
   border-bottom: 1px solid #f5f5f5;
-  padding: 10px 0;
+  padding: 10px 12px;
   vertical-align: middle;
   text-align: left;
+}
+
+.nutrient-rule-table th:first-child,
+.nutrient-rule-table td:first-child {
+  padding-left: 0;
+}
+
+.nutrient-rule-table th:last-child,
+.nutrient-rule-table td:last-child {
+  padding-right: 0;
 }
 
 .nutrient-rule-table th {

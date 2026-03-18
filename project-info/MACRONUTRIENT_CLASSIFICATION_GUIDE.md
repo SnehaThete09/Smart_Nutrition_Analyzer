@@ -141,7 +141,7 @@ Reasons:
 Health Score: 20-40
 ```
 
-### Govind Curd (400g)
+### Curd (400g)
 ```
 Per 100g values:
 - Calories: 60 kcal

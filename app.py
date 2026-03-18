@@ -34,6 +34,10 @@ CLASS_NAMES = [
     'parle_g'
 ]
 
+DISPLAY_NAME_OVERRIDES = {
+    'govind_curd': 'Curd'
+}
+
 model = None
 nutrition_df = None
 
@@ -81,6 +85,13 @@ def predict_class(img_array):
     idx = np.argmax(predictions[0])
     confidence = float(predictions[0][idx])
     return CLASS_NAMES[idx], confidence
+
+
+def get_display_food_name(food_key):
+    normalized = str(food_key or '').strip().lower()
+    if normalized in DISPLAY_NAME_OVERRIDES:
+        return DISPLAY_NAME_OVERRIDES[normalized]
+    return normalized.replace('_', ' ').title()
 
 
 # =============================
@@ -400,7 +411,7 @@ def analyze():
 
         # Predict class
         predicted_class, confidence = predict_class(img_array)
-        predicted_class_name = predicted_class.replace("_", " ").title()
+        predicted_class_name = get_display_food_name(predicted_class)
 
         # Get per-100g nutrition data for classification
         per_100g_nutrition = get_per_100g_nutrition(predicted_class)
