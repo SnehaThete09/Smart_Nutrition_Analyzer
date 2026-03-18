@@ -488,6 +488,7 @@ def debug_nutrition():
 # =============================
 # RUN SERVER
 # =============================
+load_resources()
+
 if __name__ == "__main__":
-    load_resources()
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
