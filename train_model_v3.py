@@ -1,9 +1,8 @@
+# pyright: reportMissingImports=false, reportMissingModuleSource=false
+
 import os
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.applications import MobileNetV2
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras import layers, models
 from sklearn.metrics import confusion_matrix, classification_report
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -83,7 +82,7 @@ def main():
     if not ok_to_train:
         raise SystemExit(1)
 
-    train_datagen = ImageDataGenerator(
+    train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
         rescale=1.0 / 255,
         rotation_range=30,
         width_shift_range=0.2,
@@ -97,8 +96,8 @@ def main():
         fill_mode="nearest",
     )
 
-    val_datagen = ImageDataGenerator(rescale=1.0 / 255)
-    test_datagen = ImageDataGenerator(rescale=1.0 / 255)
+    val_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1.0 / 255)
+    test_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1.0 / 255)
 
     train_generator = train_datagen.flow_from_directory(
         TRAIN_DIR, target_size=(224, 224), batch_size=32, class_mode="categorical"
@@ -120,16 +119,18 @@ def main():
     print(train_generator.class_indices)
     class_names = list(train_generator.class_indices.keys())
 
-    base_model = MobileNetV2(weights="imagenet", include_top=False, input_shape=(224, 224, 3))
+    base_model = tf.keras.applications.MobileNetV2(
+        weights="imagenet", include_top=False, input_shape=(224, 224, 3)
+    )
     base_model.trainable = False
 
-    model = models.Sequential(
+    model = tf.keras.models.Sequential(
         [
             base_model,
-            layers.GlobalAveragePooling2D(),
-            layers.Dense(256, activation="relu"),
-            layers.Dropout(0.4),
-            layers.Dense(7, activation="softmax"),
+            tf.keras.layers.GlobalAveragePooling2D(),
+            tf.keras.layers.Dense(256, activation="relu"),
+            tf.keras.layers.Dropout(0.4),
+            tf.keras.layers.Dense(7, activation="softmax"),
         ]
     )
 

@@ -1,2 +1,4 @@
 Dataset/
 Project-Demonstration
+__pycache__
+model_v3.keras

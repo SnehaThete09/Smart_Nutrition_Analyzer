@@ -35,7 +35,12 @@ CLASS_NAMES = [
 ]
 
 DISPLAY_NAME_OVERRIDES = {
-    'govind_curd': 'Curd'
+    'govind_curd': 'Curd',
+    'maggie': 'Maggi'
+}
+
+NUTRITION_NAME_ALIASES = {
+    'maggie': 'maggi'
 }
 
 model = None
@@ -94,6 +99,11 @@ def get_display_food_name(food_key):
     return normalized.replace('_', ' ').title()
 
 
+def get_nutrition_lookup_name(food_key):
+    normalized = str(food_key or '').strip().lower()
+    return NUTRITION_NAME_ALIASES.get(normalized, normalized)
+
+
 # =============================
 # GET NUTRITION DATA
 # =============================
@@ -102,15 +112,16 @@ def get_nutrition_data(food_name):
     Get nutrition data for a food item and calculate actual values for the whole pack.
     Formula: Actual Value = (Value_per_100g / 100) * net_weight_g
     """
-    print(f"\n[DEBUG] Getting nutrition for: {food_name}")
+    lookup_name = get_nutrition_lookup_name(food_name)
+    print(f"\n[DEBUG] Getting nutrition for: {lookup_name}")
     print(f"[DEBUG] Available food names: {nutrition_df['food_name'].tolist()}")
     
     row = nutrition_df[
-        nutrition_df['food_name'].str.lower().str.strip() == food_name.lower().strip()
+        nutrition_df['food_name'].str.lower().str.strip() == lookup_name
     ]
     
     if row.empty:
-        print(f"[DEBUG] No match found for {food_name}")
+        print(f"[DEBUG] No match found for {lookup_name}")
         return None
     
     # Convert to dict and ensure all nutrition keys exist with proper values
@@ -142,14 +153,15 @@ def get_per_100g_nutrition(food_name):
     Extract per-100g nutrition values from CSV for macronutrient percentage calculations.
     Returns raw per-100g values (not scaled to pack size).
     """
-    print(f"\n[DEBUG] Getting per-100g nutrition for: {food_name}")
+    lookup_name = get_nutrition_lookup_name(food_name)
+    print(f"\n[DEBUG] Getting per-100g nutrition for: {lookup_name}")
     
     row = nutrition_df[
-        nutrition_df['food_name'].str.lower().str.strip() == food_name.lower().strip()
+        nutrition_df['food_name'].str.lower().str.strip() == lookup_name
     ]
     
     if row.empty:
-        print(f"[DEBUG] No match found for {food_name}")
+        print(f"[DEBUG] No match found for {lookup_name}")
         return None
     
     nutrition_dict = row.iloc[0].to_dict()
