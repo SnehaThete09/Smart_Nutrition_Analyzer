@@ -136,7 +136,7 @@ GET /health
 2. govind_curd      → Probiotic, Very Low Calorie (60 kcal)
 3. kit_kat          → Chocolate, HIGH SUGAR (54.76g)
 4. lays_chips       → Snack, HIGH FAT (33.1g)
-5. maggie           → Instant Noodles, HIGH SODIUM (1.23g)
+5. maggi            → Instant Noodles, HIGH SODIUM (1.23g)
 6. oreo             → Cookie, High Sugar (36g)
 7. parle_g          → Biscuit, Balanced (454 kcal)
 

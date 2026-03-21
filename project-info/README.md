@@ -53,7 +53,7 @@ python train_model.py
 - `Dataset/val/[class_name]/` - Validation images
 - `Dataset/test/[class_name]/` - Test images
 
-Class names: `amul_milk`, `govind_curd`, `kit_kat`, `lays_chips`, `maggie`, `oreo`, `parle_g`
+Class names: `amul_milk`, `govind_curd`, `kit_kat`, `lays_chips`, `maggi`, `oreo`, `parle_g`
 
 Expected training time: ~15-30 minutes (depends on GPU availability)
 
@@ -253,7 +253,7 @@ kit_kat,500,4.76,26.19,66.67,54.76,0.04
 lays_chips,539,6.9,33.1,53.4,2.5,0.83
 govind_curd,60,3.6,3,5,4.52,0.04
 oreo,490,5,21,71,36,0.52
-maggie,437,10.4,15.7,63.5,3.4,1.23
+maggi,437,10.4,15.7,63.5,3.4,1.23
 ```
 
 ## ⚖️ License

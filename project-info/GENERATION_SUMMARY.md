@@ -134,7 +134,7 @@ Classes covered:
 2. **govind_curd** - Probiotic dairy
 3. **kit_kat** - High sugar chocolate
 4. **lays_chips** - High fat snack
-5. **maggie** - High sodium instant food
+5. **maggi** - High sodium instant food
 6. **oreo** - High sugar cookie
 7. **parle_g** - Balanced biscuit
 

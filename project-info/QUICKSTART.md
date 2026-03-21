@@ -26,7 +26,7 @@ Complete the following steps to get your Nutrition Analyzer running:
   │   ├── govind_curd/    (images)
   │   ├── kit_kat/        (images)
   │   ├── lays_chips/     (images)
-  │   ├── maggie/         (images)
+  │   ├── maggi/          (images)
   │   ├── oreo/           (images)
   │   └── parle_g/        (images)
   ├── val/               (same structure)

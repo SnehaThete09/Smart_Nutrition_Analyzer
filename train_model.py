@@ -29,7 +29,7 @@ CLASS_NAMES = [
     'govind_curd',
     'kit_kat',
     'lays_chips',
-    'maggie',
+    'maggi',
     'oreo',
     'parle_g'
 ]

@@ -908,7 +908,7 @@ function renderLowConfidenceResult() {
                     <span class="low-confidence-pill">Lays Chips</span>
                     <span class="low-confidence-pill">Curd</span>
                     <span class="low-confidence-pill">Oreo</span>
-                    <span class="low-confidence-pill">Maggie</span>
+                    <span class="low-confidence-pill">Maggi</span>
                 </div>
 
                 <p class="low-confidence-closing">
@@ -1188,7 +1188,6 @@ function renderHistoryDetailModal(item) {
     const readableName = formatFoodName(item.product_name || item.food_name);
     const verdictLabel = normalizeVerdictLabel(item.classification && item.classification.verdict ? item.classification.verdict : item.verdict);
     const verdictClass = getStatusClass(verdictLabel);
-    const classScore = toNumber(item.classification && item.classification.totalScore, 0);
     const nutrients = normalizeNutrients(item.nutrients);
     const confidence = toNumber(item.confidence, 0);
     const score = toNumber(item.score, 0);
@@ -1197,7 +1196,7 @@ function renderHistoryDetailModal(item) {
     const recommendations = Array.isArray(item.recommendations) ? item.recommendations : [];
 
     historyModalTitle.textContent = `${readableName} — Detailed Analysis`;
-    historyModalSubtitle.textContent = `${toNumber(item.quantity_g, 0).toFixed(0)}g · Logged at ${formatLoggedTime(item.timestamp)} · ${verdictLabel} (${classScore}/10)`;
+    historyModalSubtitle.textContent = `${toNumber(item.quantity_g, 0).toFixed(0)}g · Logged at ${formatLoggedTime(item.timestamp)} · ${verdictLabel}`;
 
     historyModalBody.innerHTML = `
         <div class="history-detail-card">
@@ -1225,7 +1224,7 @@ function renderHistoryDetailModal(item) {
         <div class="history-detail-card">
             <h5>Dietary Analysis</h5>
             <div class="recommendation-container">
-                <h4>Health Classification (ICMR/WHO Rules) <span class="status-chip">${classScore} / 10</span></h4>
+                <h4>Health Classification (ICMR/WHO Rules)</h4>
                 <div class="verdict-badge ${verdictClass}">${verdictLabel}</div>
                 <div class="nutrient-rule-table-wrap">
                     <table class="nutrient-rule-table">
@@ -1711,10 +1710,6 @@ function updateDashboard() {
         verdictBadge.textContent = `${classification.verdict}`;
     }
 
-    const classificationScoreChip = document.getElementById('classificationScoreChip');
-    if (classificationScoreChip) {
-        classificationScoreChip.textContent = `${classification.totalScore} / 10`;
-    }
     if (dairyExceptionNote) {
         const isDairy = dashboardState.foodKey === 'amul_milk' || dashboardState.foodKey === 'govind_curd';
         dairyExceptionNote.style.display = isDairy ? 'block' : 'none';
@@ -1861,7 +1856,7 @@ function displayResults(data, options = {}) {
 
     recommendations.innerHTML = `
         <div class="recommendation-container verdict-moderate">
-            <h4>Health Classification (ICMR/WHO Rules) <span id="classificationScoreChip" class="status-chip">- / 10</span></h4>
+            <h4>Health Classification (ICMR/WHO Rules)</h4>
             <div id="verdictBadge" class="verdict-badge status-moderate">Moderate</div>
             <div id="dairyExceptionNote" class="dairy-exception-note" style="display:none;">Dairy exception applied — natural lactose & fat excluded from penalty (ICMR guidelines).</div>
 

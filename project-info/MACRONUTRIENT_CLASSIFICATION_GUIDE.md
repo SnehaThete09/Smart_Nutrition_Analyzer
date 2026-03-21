@@ -125,7 +125,7 @@ Reason: Fat provides 46.55% of calories (above 40% threshold)
 Health Score: 20-40
 ```
 
-### Maggie (77g)
+### Maggi (77g)
 ```
 Per 100g values:
 - Calories: 437 kcal
