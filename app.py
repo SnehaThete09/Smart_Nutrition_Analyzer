@@ -57,7 +57,7 @@ def load_resources():
 
     # Load trained model
     try:
-        model = load_model("best_model_v3.keras")
+        model = load_model("best_model_v3.h5")
         print("✓ Model loaded successfully")
     except Exception as e:
         print("✗ Model loading failed:", e)
