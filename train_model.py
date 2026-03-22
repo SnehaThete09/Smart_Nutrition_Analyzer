@@ -26,7 +26,7 @@ EPOCHS = 15
 
 CLASS_NAMES = [
     'amul_milk',
-    'govind_curd',
+    'amul_curd',
     'kit_kat',
     'lays_chips',
     'maggi',

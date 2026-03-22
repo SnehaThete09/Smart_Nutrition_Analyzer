@@ -1,8 +1,8 @@
-food_name,net_weight_g,calories_per_100,protein_g_per_100,fat_g_per_100g,carbs_g_per_100,sugar_g_per_100,sodium_g_per_100
-parle_g,50,454,6.9,13,77.3,25.5,0.26
-amul_milk,70,116,6,6,9.6,9.6,0.07
-kit_kat,40,500,4.76,26.19,66.67,54.76,0.04
-lays_chips,30,539,6.9,33.1,53.4,2.5,0.83
-govind_curd,150,60,3.6,3,5,4.52,0.04
-oreo,90,490,5,21,71,36,0.52
-maggi,80,437,10.4,15.7,63.5,3.4,1.23
+food_name,calories_per_100,protein_g_per_100,fat_g_per_100g,carbs_g_per_100,sugar_g_per_100,sodium_g_per_100
+parle_g,454,6.9,13,77.3,25.5,0.26
+amul_milk,116,6,6,9.6,9.6,0.07
+kit_kat,500,4.76,26.19,66.67,54.76,0.04
+lays_chips,539,6.9,33.1,53.4,2.5,0.83
+amul_curd,65,4,3.1,4.6,4.6,0.05
+oreo,490,5,21,71,36,0.52
+maggi,437,10.4,15.7,63.5,3.4,1.23

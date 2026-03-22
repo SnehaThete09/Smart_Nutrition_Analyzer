@@ -70,7 +70,7 @@ const DAILY_LIMITS = {
 
 const DAILY_LOG_KEY = 'daily_log';
 const DISPLAY_NAME_OVERRIDES = {
-    govind_curd: 'Curd'
+    amul_curd: 'Curd'
 };
 
 function zeroTotals() {
@@ -634,7 +634,7 @@ function getMacroPercentages(per100) {
 
 function calculateDynamicHealthScore(per100, foodKey) {
     const macro = getMacroPercentages(per100);
-    const isDairy = foodKey === 'amul_milk' || foodKey === 'govind_curd';
+    const isDairy = foodKey === 'amul_milk' || foodKey === 'amul_curd';
 
     const proteinBonus = Math.min(macro.proteinCalPct / 20, 1.0) * 20;
     let fatPenalty = Math.max((macro.fatCalPct - 35) / 15, 0) * 20;
@@ -765,7 +765,7 @@ function getStatusClass(status) {
 
 function classifyFoodByRules(per100, foodKey) {
     const macro = getMacroPercentages(per100);
-    const isDairy = foodKey === 'amul_milk' || foodKey === 'govind_curd';
+    const isDairy = foodKey === 'amul_milk' || foodKey === 'amul_curd';
 
     const rows = [
         {
@@ -1066,7 +1066,7 @@ function initHistoryDetailChart(item) {
     const quantityGrams = Math.max(toNumber(item && item.quantity_g, 0), 1);
     const quantityFactor = quantityGrams / 100;
     const foodKey = String(item && (item.food_key || item.food_name) || '').toLowerCase();
-    const isDairy = foodKey === 'amul_milk' || foodKey === 'govind_curd';
+    const isDairy = foodKey === 'amul_milk' || foodKey === 'amul_curd';
 
     const thresholdPer100 = {
         protein: (toNumber(per100.calories) * 0.10) / 4,
@@ -1388,7 +1388,7 @@ function initChart(nutrition, per100, quantityGrams, foodKey) {
         nutritionChart.destroy();
     }
 
-    const isDairy = foodKey === 'amul_milk' || foodKey === 'govind_curd';
+    const isDairy = foodKey === 'amul_milk' || foodKey === 'amul_curd';
     const quantityFactor = quantityGrams / 100;
     const caloriesPer100 = toNumber(per100.calories);
 
@@ -1711,7 +1711,7 @@ function updateDashboard() {
     }
 
     if (dairyExceptionNote) {
-        const isDairy = dashboardState.foodKey === 'amul_milk' || dashboardState.foodKey === 'govind_curd';
+        const isDairy = dashboardState.foodKey === 'amul_milk' || dashboardState.foodKey === 'amul_curd';
         dairyExceptionNote.style.display = isDairy ? 'block' : 'none';
     }
 

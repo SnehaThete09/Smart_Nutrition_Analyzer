@@ -131,7 +131,7 @@ Predicted Class + Nutrition Data → Verdict
 
 Classes covered:
 1. **amul_milk** - Low fat dairy
-2. **govind_curd** - Probiotic dairy
+2. **amul_curd** - Probiotic dairy
 3. **kit_kat** - High sugar chocolate
 4. **lays_chips** - High fat snack
 5. **maggi** - High sodium instant food

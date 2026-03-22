@@ -25,8 +25,8 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 # CLASS NAMES (MUST MATCH TRAINING)
 # =============================
 CLASS_NAMES = [
+    'amul_curd',
     'amul_milk',
-    'govind_curd',
     'kit_kat',
     'lays_chips',
     'maggie',
@@ -35,12 +35,22 @@ CLASS_NAMES = [
 ]
 
 DISPLAY_NAME_OVERRIDES = {
-    'govind_curd': 'Curd',
+    'amul_curd': 'Curd',
     'maggie': 'Maggi'
 }
 
 NUTRITION_NAME_ALIASES = {
     'maggie': 'maggi'
+}
+
+SERVING_SIZES = {
+    'amul_milk': 200,
+    'amul_curd': 200,
+    'kit_kat': 40,
+    'lays_chips': 26,
+    'maggie': 70,
+    'oreo': 39,
+    'parle_g': 60,
 }
 
 model = None
@@ -57,7 +67,7 @@ def load_resources():
 
     # Load trained model
     try:
-        model = load_model("best_model_v3.h5")
+        model = load_model("best_model_v3.keras")
         print("✓ Model loaded successfully")
     except Exception as e:
         print("✗ Model loading failed:", e)
@@ -104,13 +114,24 @@ def get_nutrition_lookup_name(food_key):
     return NUTRITION_NAME_ALIASES.get(normalized, normalized)
 
 
+def get_serving_size(food_key):
+    normalized = str(food_key or '').strip().lower()
+    if normalized in SERVING_SIZES:
+        return float(SERVING_SIZES[normalized])
+
+    lookup_name = get_nutrition_lookup_name(normalized)
+    if lookup_name in SERVING_SIZES:
+        return float(SERVING_SIZES[lookup_name])
+
+    return 100.0
+
+
 # =============================
 # GET NUTRITION DATA
 # =============================
 def get_nutrition_data(food_name):
     """
-    Get nutrition data for a food item and calculate actual values for the whole pack.
-    Formula: Actual Value = (Value_per_100g / 100) * net_weight_g
+    Get nutrition data for a food item scaled by product serving size.
     """
     lookup_name = get_nutrition_lookup_name(food_name)
     print(f"\n[DEBUG] Getting nutrition for: {lookup_name}")
@@ -124,24 +145,22 @@ def get_nutrition_data(food_name):
         print(f"[DEBUG] No match found for {lookup_name}")
         return None
     
-    # Convert to dict and ensure all nutrition keys exist with proper values
+    # Convert per-100g values from CSV to serving-size nutrition values.
     nutrition_dict = row.iloc[0].to_dict()
     print(f"[DEBUG] Raw nutrition_dict: {nutrition_dict}")
-    
-    # Get net weight in grams
-    net_weight_g = float(nutrition_dict.get('net_weight_g', 100))
-    
-    # Calculate actual values for the whole pack using formula:
-    # Actual Value = (Value_per_100g / 100) * net_weight_g
+
+    serving_size_g = get_serving_size(food_name)
+    scale = serving_size_g / 100.0
+
     result = {
-        'calories': round((float(nutrition_dict.get('calories_per_100', 0)) / 100) * net_weight_g, 2),
-        'protein': round((float(nutrition_dict.get('protein_g_per_100', 0)) / 100) * net_weight_g, 2),
-        'fat': round((float(nutrition_dict.get('fat_g_per_100g', 0)) / 100) * net_weight_g, 2),
-        'carbs': round((float(nutrition_dict.get('carbs_g_per_100', 0)) / 100) * net_weight_g, 2),
-        'sugar': round((float(nutrition_dict.get('sugar_g_per_100', 0)) / 100) * net_weight_g, 2),
-        'sodium': round((float(nutrition_dict.get('sodium_g_per_100', 0)) / 100) * net_weight_g, 2)
+        'calories': round(float(nutrition_dict.get('calories_per_100', 0)) * scale, 2),
+        'protein': round(float(nutrition_dict.get('protein_g_per_100', 0)) * scale, 2),
+        'fat': round(float(nutrition_dict.get('fat_g_per_100g', 0)) * scale, 2),
+        'carbs': round(float(nutrition_dict.get('carbs_g_per_100', 0)) * scale, 2),
+        'sugar': round(float(nutrition_dict.get('sugar_g_per_100', 0)) * scale, 2),
+        'sodium': round(float(nutrition_dict.get('sodium_g_per_100', 0)) * scale, 2)
     }
-    print(f"[DEBUG] Calculated result (for {net_weight_g}g pack): {result}")
+    print(f"[DEBUG] Serving-size result ({serving_size_g}g): {result}")
     return result
 
 
@@ -166,10 +185,12 @@ def get_per_100g_nutrition(food_name):
     
     nutrition_dict = row.iloc[0].to_dict()
     print(f"[DEBUG] Raw nutrition_dict: {nutrition_dict}")
+
+    serving_size_g = get_serving_size(food_name)
     
     result = {
         'food_name': str(nutrition_dict.get('food_name', food_name)).strip(),
-        'net_weight_g': float(nutrition_dict.get('net_weight_g', 100)),
+        'net_weight_g': serving_size_g,
         'calories_100g': float(nutrition_dict.get('calories_per_100', 0)),
         'protein_100g': float(nutrition_dict.get('protein_g_per_100', 0)),
         'fat_100g': float(nutrition_dict.get('fat_g_per_100g', nutrition_dict.get('fat_g_per_100', 0))),

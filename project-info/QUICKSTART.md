@@ -23,7 +23,7 @@ Complete the following steps to get your Nutrition Analyzer running:
   Dataset/
   ├── train/
   │   ├── amul_milk/      (images)
-  │   ├── govind_curd/    (images)
+  │   ├── amul_curd/    (images)
   │   ├── kit_kat/        (images)
   │   ├── lays_chips/     (images)
   │   ├── maggi/          (images)

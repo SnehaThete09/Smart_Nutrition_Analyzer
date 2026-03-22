@@ -8,7 +8,7 @@ MODEL_PATH = "model.keras"
 
 CLASS_NAMES = [
     'amul_milk',
-    'govind_curd',
+    'amul_curd',
     'kit_kat',
     'lays_chips',
     'maggi',

@@ -133,7 +133,7 @@ GET /health
 └────────────────────────────────────────────────────────────────────────────┘
 
 1. amul_milk        → Dairy, Low Fat (116 kcal)
-2. govind_curd      → Probiotic, Very Low Calorie (60 kcal)
+2. amul_curd      → Probiotic, Very Low Calorie (60 kcal)
 3. kit_kat          → Chocolate, HIGH SUGAR (54.76g)
 4. lays_chips       → Snack, HIGH FAT (33.1g)
 5. maggi            → Instant Noodles, HIGH SODIUM (1.23g)
