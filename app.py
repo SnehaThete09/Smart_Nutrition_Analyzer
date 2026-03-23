@@ -6,6 +6,7 @@ Handles image upload, classification, and nutritional analysis
 from flask import Flask, request, jsonify, render_template
 import pandas as pd
 import numpy as np
+import tensorflow as tf
 from tensorflow.keras.models import load_model
 from PIL import Image
 import os
@@ -56,6 +57,15 @@ SERVING_SIZES = {
 model = None
 nutrition_df = None
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_FILE_NAME = os.getenv('MODEL_PATH', 'best_model_v3.keras')
+
+
+def get_model_path():
+    if os.path.isabs(MODEL_FILE_NAME):
+        return MODEL_FILE_NAME
+    return os.path.join(BASE_DIR, MODEL_FILE_NAME)
+
 
 # =============================
 # LOAD MODEL + CSV
@@ -67,8 +77,18 @@ def load_resources():
 
     # Load trained model
     try:
-        model = load_model("best_model_v3.keras")
-        print("✓ Model loaded successfully")
+        model_path = get_model_path()
+        print(f"TensorFlow version: {tf.__version__}")
+        print(f"Attempting to load model from: {model_path}")
+
+        if not os.path.exists(model_path):
+            raise FileNotFoundError(f"Model file not found at {model_path}")
+
+        model_size_mb = os.path.getsize(model_path) / (1024 * 1024)
+        print(f"Model file size: {model_size_mb:.2f} MB")
+
+        model = load_model(model_path, compile=False)
+        print(f"✓ Model loaded successfully from {model_path}")
     except Exception as e:
         print("✗ Model loading failed:", e)
 
@@ -425,6 +445,9 @@ def about():
 @app.route("/analyze", methods=["POST"])
 def analyze():
     try:
+        if model is None:
+            return jsonify({"error": "Model is not loaded. Check startup logs for details."}), 503
+
         if "file" not in request.files:
             return jsonify({"error": "No file uploaded"}), 400
 
@@ -500,9 +523,12 @@ def analyze():
 
 @app.route("/health")
 def health():
+    model_path = get_model_path()
     return jsonify({
         "model_loaded": model is not None,
-        "nutrition_loaded": nutrition_df is not None
+        "nutrition_loaded": nutrition_df is not None,
+        "model_path": model_path,
+        "model_file_exists": os.path.exists(model_path)
     })
 
 
